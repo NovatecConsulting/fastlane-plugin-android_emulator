@@ -1,0 +1,17 @@
+lane :test do
+  ENV["AVD_PACKAGE"] = "system-images;android-24;google_apis;x86_64"
+
+  # installs the emulator and system-image
+  android_sdk_update(
+    compile_sdk_version: "25",
+    build_tools_version: "25.0.2",
+    additional_packages: [
+      ENV["AVD_PACKAGE"],
+      "emulator"
+    ]
+  )
+
+  android_emulator(
+    location: '9.1808 48.7771'
+  )
+end
