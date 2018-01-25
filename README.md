@@ -13,6 +13,7 @@ fastlane add_plugin android_emulator
 ## About android_emulator
 
 Creates and starts a new Android Emulator (AVD)
+
 With additional features:
 
 * set location
@@ -39,11 +40,12 @@ ENV["AVD_PACKAGE"] = "system-images;android-24;google_apis;x86_64"
  android_sdk_update(
 	additional_packages: [
 		ENV["AVD_PACKAGE"],
-        "emulator"]
+		"emulator"
+	]
 )
 
 android_emulator(
- 	location: '9.1808 48.7771'
+	location: '9.1808 48.7771'
 )
 ```
 
