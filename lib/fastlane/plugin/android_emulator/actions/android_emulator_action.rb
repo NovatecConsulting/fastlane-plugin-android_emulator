@@ -14,6 +14,7 @@ module Fastlane
 
         UI.message("Stopping emulator")
         system("#{adb} emu kill > /dev/null 2>&1 &")
+        sleep(2)
 
         UI.message("Creating new emulator")
         FastlaneCore::CommandExecutor.execute(
