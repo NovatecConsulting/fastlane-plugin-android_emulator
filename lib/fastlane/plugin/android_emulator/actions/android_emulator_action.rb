@@ -15,8 +15,15 @@ module Fastlane
         UI.message("Stopping emulator")
         system("#{adb} emu kill > /dev/null 2>&1 &")
         sleep(2)
-        
-        if !params[:retain_previous_avd] || !Dir.exists? "#{Dir.home}/.android/avd/#{params[:name]}.avd"
+
+        avd_available = false
+        config_file = "#{Dir.home}/.android/avd/#{params[:name]}.avd/config.ini"
+        if File.exists?(config_file)
+          avd_image = File.open(config_file).grep(/^image\.sysdir\.1=/)
+          avd_available = avd_image.any? { |s| s.include?(params[:sdk_dir].gsub(';', '/')) }
+        end
+
+        if !params[:retain_previous_avd] || !avd_available
           UI.message("Creating new emulator")
           FastlaneCore::CommandExecutor.execute(
             command: "#{sdk_dir}/tools/bin/avdmanager create avd -n '#{params[:name]}' -f -k '#{params[:package]}' -d '#{params[:device_definition]}'",
@@ -90,9 +97,9 @@ module Fastlane
                                          UI.user_error!("No ANDROID_SDK_DIR given, pass using `sdk_dir: 'sdk_dir'`") unless value and !value.empty?
                                        end),
           FastlaneCore::ConfigItem.new(key: :package,
-                                      env_name: "AVD_PACKAGE",
-                                      description: "The selected system image of the emulator",
-                                      optional: false),
+                                       env_name: "AVD_PACKAGE",
+                                       description: "The selected system image of the emulator",
+                                       optional: false),
           FastlaneCore::ConfigItem.new(key: :name,
                                        env_name: "AVD_NAME",
                                        description: "Name of the AVD",
