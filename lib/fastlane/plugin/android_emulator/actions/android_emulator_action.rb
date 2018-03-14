@@ -20,10 +20,14 @@ module Fastlane
         config_file = "#{Dir.home}/.android/avd/#{params[:name]}.avd/config.ini"
         if File.exists?(config_file)
           avd_image = File.open(config_file).grep(/^image\.sysdir\.1=/)
-          avd_available = avd_image.any? { |s| s.include?(params[:sdk_dir].gsub(';', '/')) }
+          avd_available = avd_image.any? { |s| s.include?(params[:package].gsub(';', '/')) }
         end
 
-        if !params[:retain_previous_avd] || !avd_available
+        if params[:retain_previous_avd] && avd_available
+          UI.message("Using existing #{params[:name]} emulator")
+          # wait for additional time for emulator to quit
+          sleep(1)
+        else
           UI.message("Creating new emulator")
           FastlaneCore::CommandExecutor.execute(
             command: "#{sdk_dir}/tools/bin/avdmanager create avd -n '#{params[:name]}' -f -k '#{params[:package]}' -d '#{params[:device_definition]}'",
