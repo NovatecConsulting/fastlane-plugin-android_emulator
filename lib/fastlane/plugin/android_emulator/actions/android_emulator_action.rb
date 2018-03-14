@@ -53,9 +53,14 @@ module Fastlane
 
         UI.message("Starting emulator")
         system("LC_NUMERIC=C; #{sdk_dir}/tools/emulator @#{params[:name]} > /dev/null 2>&1 &")
-        sh("#{adb} -e wait-for-device")
 
-        until Actions.sh("#{adb} -e shell getprop init.svc.bootanim", log: false).include? "stopped" do
+        error_callback = proc do |error|
+          UI.error("Emulator may be having issues... or could have started too quickly!")
+        end
+        Actions.sh("#{adb} -e wait-for-device", error_callback: error_callback)
+
+        until Actions.sh("#{adb} -e shell getprop init.svc.bootanim", log: false,
+                         error_callback: error_callback).include? "stopped" do
           sleep(5)
         end
 
