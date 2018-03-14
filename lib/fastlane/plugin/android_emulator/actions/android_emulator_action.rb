@@ -15,27 +15,29 @@ module Fastlane
         UI.message("Stopping emulator")
         system("#{adb} emu kill > /dev/null 2>&1 &")
         sleep(2)
+        
+        if !params[:retain_previous_avd] || !Dir.exists? "#{Dir.home}/.android/avd/#{params[:name]}.avd"
+          UI.message("Creating new emulator")
+          FastlaneCore::CommandExecutor.execute(
+            command: "#{sdk_dir}/tools/bin/avdmanager create avd -n '#{params[:name]}' -f -k '#{params[:package]}' -d '#{params[:device_definition]}'",
+            print_all: true,
+            print_command: false
+          )
 
-        UI.message("Creating new emulator")
-        FastlaneCore::CommandExecutor.execute(
-          command: "#{sdk_dir}/tools/bin/avdmanager create avd -n '#{params[:name]}' -f -k '#{params[:package]}' -d 'Nexus 5'",
-          print_all: true,
-          print_command: false
-        )
+          UI.message("Override configuration")
+          open("#{Dir.home}/.android/avd/#{params[:name]}.avd/config.ini", 'a') { |f|
+            f << "hw.gpu.mode=auto\n"
+            f << "hw.gpu.enabled=yes\n"
+            f << "skin.dynamic=yes\n"
+            f << "skin.name=1080x1920\n"
+          }
 
-        UI.message("Override configuration")
-        open("#{Dir.home}/.android/avd/#{params[:name]}.avd/config.ini", 'a') { |f|
-          f << "hw.gpu.mode=auto\n"
-          f << "hw.gpu.enabled=yes\n"
-          f << "skin.dynamic=yes\n"
-          f << "skin.name=1080x1920\n"
-        }
+          # Verify HAXM installed on mac
+          if FastlaneCore::Helper.mac?
+            kextstat = Actions.sh("kextstat", log: false)
 
-        # Verify HAXM installed on mac
-        if FastlaneCore::Helper.mac?
-          kextstat = Actions.sh("kextstat", log: false)
-
-          UI.user_error! "Please install the HAXM-Extension" unless kextstat.include?("intel")
+            UI.user_error! "Please install the HAXM-Extension" unless kextstat.include?("intel")
+          end
         end
 
         UI.message("Starting emulator")
@@ -96,6 +98,11 @@ module Fastlane
                                        description: "Name of the AVD",
                                        default_value: "fastlane",
                                        optional: false),
+          FastlaneCore::ConfigItem.new(key: :device_definition,
+                                       env_name: "AVD_DEVICE_DEFINITION",
+                                       description: "Device definition for the AVD",
+                                       default_value: "Nexus 5",
+                                       optional: false),
           FastlaneCore::ConfigItem.new(key: :location,
                                        env_name: "AVD_LOCATION",
                                        description: "Set location of the the emulator '<longitude> <latitude>'",
@@ -103,6 +110,11 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :demo_mode,
                                        env_name: "AVD_DEMO_MODE",
                                        description: "Set the emulator in demo mode",
+                                       is_string: false,
+                                       default_value: true),
+          FastlaneCore::ConfigItem.new(key: :retain_previous_avd,
+                                       env_name: "AVD_RETAIN_PREVIOUS",
+                                       description: "Retain previously created AVD (use snapshot)",
                                        is_string: false,
                                        default_value: true)
         ]
