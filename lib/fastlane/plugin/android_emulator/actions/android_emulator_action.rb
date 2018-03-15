@@ -13,8 +13,7 @@ module Fastlane
         adb = "#{sdk_dir}/platform-tools/adb"
 
         UI.message("Stopping emulator")
-        system("#{adb} emu kill > /dev/null 2>&1 &")
-        sleep(2)
+        system("#{adb} emu kill > /dev/null 2>&1")
 
         avd_available = false
         config_file = "#{Dir.home}/.android/avd/#{params[:name]}.avd/config.ini"
@@ -25,8 +24,6 @@ module Fastlane
 
         if params[:retain_previous_avd] && avd_available
           UI.message("Using existing #{params[:name]} emulator")
-          # wait for additional time for emulator to quit
-          sleep(1)
         else
           UI.message("Creating new emulator")
           FastlaneCore::CommandExecutor.execute(
@@ -36,19 +33,19 @@ module Fastlane
           )
 
           UI.message("Override configuration")
-          open("#{Dir.home}/.android/avd/#{params[:name]}.avd/config.ini", 'a') { |f|
+          open(config_file, 'a') { |f|
             f << "hw.gpu.mode=auto\n"
             f << "hw.gpu.enabled=yes\n"
             f << "skin.dynamic=yes\n"
             f << "skin.name=1080x1920\n"
           }
+        end
 
-          # Verify HAXM installed on mac
-          if FastlaneCore::Helper.mac?
-            kextstat = Actions.sh("kextstat", log: false)
+        # Verify HAXM installed on mac
+        if FastlaneCore::Helper.mac?
+          kextstat = Actions.sh("kextstat", log: false)
 
-            UI.user_error! "Please install the HAXM-Extension" unless kextstat.include?("intel")
-          end
+          UI.user_error! "Please install the HAXM-Extension" unless kextstat.include?("intel")
         end
 
         UI.message("Starting emulator")
