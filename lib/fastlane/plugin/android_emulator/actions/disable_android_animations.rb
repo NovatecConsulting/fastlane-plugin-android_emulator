@@ -11,7 +11,7 @@ module Fastlane
         UI.message "Disabling Android animations"
         sdk_dir = params[:sdk_dir]
         adb = "#{sdk_dir}/platform-tools/adb"
-        devices = sh("adb devices -l").split("\n")
+        devices = sh("#{adb} devices -l").split("\n")
         device = Helper::AndroidEmulatorHelper.select_device(devices, params[:device])
         sh("#{adb} -s #{device} shell settings put global window_animation_scale 0.0")
         sh("#{adb} -s #{device} shell settings put global transition_animation_scale 0.0")
