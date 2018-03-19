@@ -4,7 +4,6 @@ require_relative '../helper/android_emulator_helper'
 module Fastlane
   module Actions
     module SharedValues
-      ANDROID_SDK_DIR = :ANDROID_SDK_DIR
     end
 
     class AndroidEmulatorAction < Action
