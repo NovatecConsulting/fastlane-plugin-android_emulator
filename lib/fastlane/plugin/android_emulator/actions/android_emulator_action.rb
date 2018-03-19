@@ -8,7 +8,8 @@ module Fastlane
 
     class AndroidEmulatorAction < Action
       def self.run(params)
-        sdk_dir = params[:sdk_dir]
+        Actions::AndroidSdkLocateAction.run(params)
+        sdk_dir = Actions.lane_context[SharedValues::ANDROID_SDK_DIR]
         adb = "#{sdk_dir}/platform-tools/adb"
 
         UI.message("Stopping emulator")

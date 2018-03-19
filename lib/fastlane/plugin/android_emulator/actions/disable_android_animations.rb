@@ -6,11 +6,12 @@ module Fastlane
     module SharedValues
     end
 
-    class EnableAndroidAnimationsAction < Action
+    class DisableAndroidAnimationsAction < Action
       def self.run(params)
-        UI.message "Disabling Android animations"
-        sdk_dir = params[:sdk_dir]
+        Actions::AndroidSdkLocateAction.run(params)
+        sdk_dir = Actions.lane_context[SharedValues::ANDROID_SDK_DIR]
         adb = "#{sdk_dir}/platform-tools/adb"
+        UI.message "Disabling Android animations"
         devices = sh("#{adb} devices -l").split("\n")
         device = Helper::AndroidEmulatorHelper.select_device(devices, params[:device])
         sh("#{adb} -s #{device} shell settings put global window_animation_scale 0.0")
