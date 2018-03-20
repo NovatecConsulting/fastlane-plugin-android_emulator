@@ -17,8 +17,8 @@ module Fastlane
         avd_available = false
         config_file = "#{Dir.home}/.android/avd/#{params[:name]}.avd/config.ini"
         if File.exists?(config_file)
-          avd_image = File.open(config_file).grep(/^image\.sysdir\.1=/)
-          avd_available = avd_image.any? { |s| s.include?(params[:package].gsub(';', '/')) }
+          avd_image = File.open(config_file).grep(/^image\.sysdir\.1=/).first
+          avd_available = avd_image.include?(params[:package].gsub(';', '/'))
         end
 
         if params[:retain_previous_avd] && avd_available
