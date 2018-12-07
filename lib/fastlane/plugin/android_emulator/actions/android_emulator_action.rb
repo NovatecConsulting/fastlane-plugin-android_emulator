@@ -3,10 +3,6 @@ require_relative '../helper/android_emulator_helper'
 
 module Fastlane
   module Actions
-    module SharedValues
-      ANDROID_SDK_DIR = :ANDROID_SDK_DIR
-    end
-
     class AndroidEmulatorAction < Action
       def self.run(params)
         sdk_dir = params[:sdk_dir]
@@ -85,7 +81,7 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :sdk_dir,
                                        env_name: "ANDROID_SDK_DIR",
                                        description: "Path to the Android SDK DIR",
-                                       default_value: Actions.lane_context[SharedValues::ANDROID_SDK_DIR],
+                                       default_value: ENV['ANDROID_HOME'] || ENV['ANDROID_SDK_ROOT'] || ENV['ANDROID_SDK'],
                                        optional: false,
                                        verify_block: proc do |value|
                                          UI.user_error!("No ANDROID_SDK_DIR given, pass using `sdk_dir: 'sdk_dir'`") unless value and !value.empty?
