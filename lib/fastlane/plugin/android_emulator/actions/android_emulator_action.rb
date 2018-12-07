@@ -10,6 +10,7 @@ module Fastlane
     class AndroidEmulatorAction < Action
       def self.run(params)
         sdk_dir = params[:sdk_dir]
+        port = params[:port]
         adb = "#{sdk_dir}/platform-tools/adb"
 
         UI.message("Stopping emulator")
@@ -39,7 +40,7 @@ module Fastlane
         end
 
         UI.message("Starting emulator")
-        system("LC_NUMERIC=C; #{sdk_dir}/tools/emulator @#{params[:name]} > /dev/null 2>&1 &")
+        system("LC_NUMERIC=C; #{sdk_dir}/tools/emulator @#{params[:name]} -port #{port} > /dev/null 2>&1 &")
         sh("#{adb} -e wait-for-device")
 
         until Actions.sh("#{adb} -e shell getprop init.svc.bootanim", log: false).include? "stopped" do
@@ -56,6 +57,8 @@ module Fastlane
           sh("#{adb} -e shell settings put global sysui_demo_allowed 1")
           sh("#{adb} -e shell am broadcast -a com.android.systemui.demo -e command clock -e hhmm 0700")
         end
+
+        ENV['SCREENGRAB_SPECIFIC_DEVICE'] = "emulator-#{port}"
       end
 
       def self.description
@@ -95,6 +98,11 @@ module Fastlane
                                        env_name: "AVD_NAME",
                                        description: "Name of the AVD",
                                        default_value: "fastlane",
+                                       optional: false),
+          FastlaneCore::ConfigItem.new(key: :port,
+                                       env_name: "AVD_PORT",
+                                       description: "Port of the emulator",
+                                       default_value: "5554",
                                        optional: false),
           FastlaneCore::ConfigItem.new(key: :location,
                                        env_name: "AVD_LOCATION",
