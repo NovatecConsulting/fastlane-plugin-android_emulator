@@ -36,10 +36,10 @@ module Fastlane
         end
 
         UI.message("Starting emulator")
-        system("LC_NUMERIC=C; #{sdk_dir}/tools/emulator @#{params[:name]} -port #{port} > /dev/null 2>&1 &")
+        system("LC_NUMERIC=C; #{sdk_dir}/emulator/emulator @#{params[:name]} -port #{port} > /dev/null 2>&1 &")
         sh("#{adb} -e wait-for-device")
 
-        until Actions.sh("#{adb} -e shell getprop init.svc.bootanim", log: false).include? "stopped" do
+        until Actions.sh("#{adb} -e shell getprop dev.bootcomplete", log: false).strip == "1" do
           sleep(5)
         end
 
