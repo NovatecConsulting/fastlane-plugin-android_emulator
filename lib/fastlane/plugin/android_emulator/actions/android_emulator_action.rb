@@ -15,7 +15,7 @@ module Fastlane
 
         UI.message("Creating new emulator")
         FastlaneCore::CommandExecutor.execute(
-          command: "#{sdk_dir}/tools/bin/avdmanager create avd -n '#{params[:name]}' -f -k '#{params[:package]}' -d 'Nexus 5'",
+          command: "#{sdk_dir}/tools/bin/avdmanager create avd -n '#{params[:name]}' -f -k '#{params[:package]}' -d '#{params[:device]}'",
           print_all: true,
           print_command: false
         )
@@ -95,6 +95,11 @@ module Fastlane
                                        description: "Name of the AVD",
                                        default_value: "fastlane",
                                        optional: false),
+          FastlaneCore::ConfigItem.new(key: :device,
+                                        env_name: "AVD_DEVICE",
+                                        description: "Device",
+                                        default_value: "Nexus 5",
+                                        optional: false),
           FastlaneCore::ConfigItem.new(key: :port,
                                        env_name: "AVD_PORT",
                                        description: "Port of the emulator",
