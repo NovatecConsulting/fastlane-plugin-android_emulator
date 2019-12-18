@@ -26,8 +26,11 @@ android_emulator(
 	location: '9.1808 48.7771',
 	package: "system-images;android-24;google_apis;x86_64",
 	demo_mode: true,
-	sdk_dir: "PATH_TO_SDK"
+	sdk_dir: "PATH_TO_SDK",
+	device: "Nexus 5"
 )
+
+Available Options: sdk_dir, package, name, device, port, location, demo_mode
 ```
 
 Or you can use it with our [Android SDK Update Plugin](https://github.com/NovaTecConsulting/fastlane-plugin-android_sdk_update) 
