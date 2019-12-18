@@ -21,6 +21,8 @@ With additional features:
 
 ## Example
 
+**Available Options:** sdk_dir, package, name, device, port, location, demo_mode
+
 ```ruby
 android_emulator(
 	location: '9.1808 48.7771',
@@ -29,8 +31,6 @@ android_emulator(
 	sdk_dir: "PATH_TO_SDK",
 	device: "Nexus 5"
 )
-
-Available Options: sdk_dir, package, name, device, port, location, demo_mode
 ```
 
 Or you can use it with our [Android SDK Update Plugin](https://github.com/NovaTecConsulting/fastlane-plugin-android_sdk_update) 
