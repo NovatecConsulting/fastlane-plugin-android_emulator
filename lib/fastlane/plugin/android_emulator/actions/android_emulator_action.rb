@@ -32,7 +32,7 @@ module Fastlane
         if FastlaneCore::Helper.mac?
           kextstat = Actions.sh("kextstat", log: false)
 
-          UI.user_error! "Please install the HAXM-Extension" unless kextstat.include?("intel")
+          UI.important("Please install the HAXM-Extension for better performance") unless kextstat.include?("intel")
         end
 
         UI.message("Starting emulator")
