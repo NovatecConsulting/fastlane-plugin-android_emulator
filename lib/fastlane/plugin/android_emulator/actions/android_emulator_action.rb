@@ -9,9 +9,9 @@ module Fastlane
         port = params[:port]
         adb = "#{sdk_dir}/platform-tools/adb"
 
-        UI.message("Stopping emulator")
-        system("#{adb} emu kill > /dev/null 2>&1 &")
-        sleep(2)
+        UI.message("Stopping emulators")        
+        system("#{adb} devices | grep emulator- | cut -f1 | while read -r emulator device; do #{adb} -s $emulator emu kill; done")
+        sleep(5)
 
         UI.message("Creating new emulator")
         FastlaneCore::CommandExecutor.execute(
@@ -36,11 +36,19 @@ module Fastlane
         end
 
         UI.message("Starting emulator")
-        system("LC_NUMERIC=C; #{sdk_dir}/emulator/emulator @#{params[:name]} -port #{port} > /dev/null 2>&1 &")
+  
+        system("LC_NUMERIC=C; #{sdk_dir}/emulator/emulator @#{params[:name]}#{params[:locale] ? " -no-snapshot -change-locale " + params[:locale] : ""} -port #{port} > /dev/null 2>&1 &")        
         sh("#{adb} -e wait-for-device")
 
-        until Actions.sh("#{adb} -e shell getprop dev.bootcomplete", log: false).strip == "1" do
-          sleep(5)
+        until (
+            params[:locale] && 
+            Actions.sh("#{adb} -e shell getprop persist.sys.locale", log: false).strip == params[:locale] &&             
+            Actions.sh("#{adb} -e shell getprop dev.bootcomplete", log: false).strip == "1"
+          ) || (
+            !params[:locale] && 
+            Actions.sh("#{adb} -e shell getprop dev.bootcomplete", log: false).strip == "1"
+          ) do
+          sleep(10)
         end
 
         if params[:location]
@@ -48,10 +56,16 @@ module Fastlane
           sh("LC_NUMERIC=C; #{adb} emu geo fix #{params[:location]}")
         end
 
-        if params[:demo_mode]
-          UI.message("Set in demo mode")
-          sh("#{adb} -e shell settings put global sysui_demo_allowed 1")
-          sh("#{adb} -e shell am broadcast -a com.android.systemui.demo -e command clock -e hhmm 0700")
+        if params[:demo_mode] 
+          UI.message("Set in demo mode")  
+
+          until Actions.sh("#{adb} -e shell settings get global sysui_demo_allowed", log: false).strip == "1" do                        
+            Actions.sh("#{adb} -e shell settings put global sysui_demo_allowed 1", log: false)
+            sleep(10)               
+          end
+
+          Actions.sh("#{adb} -e shell am broadcast -a com.android.systemui.demo -e command clock -e hhmm 0700", log: false)         
+                                        
         end
 
         ENV['SCREENGRAB_SPECIFIC_DEVICE'] = "emulator-#{port}"
@@ -71,7 +85,8 @@ module Fastlane
             location: "9.1808 48.7771",
             package: "system-images;android-24;google_apis;x86_64",
             demo_mode: true,
-            sdk_dir: "PATH_TO_SDK"
+            sdk_dir: "PATH_TO_SDK",
+            locale: "en-US"
           )'
         ]
       end
@@ -113,7 +128,11 @@ module Fastlane
                                        env_name: "AVD_DEMO_MODE",
                                        description: "Set the emulator in demo mode",
                                        is_string: false,
-                                       default_value: true)
+                                       default_value: true),
+          FastlaneCore::ConfigItem.new(key: :locale,
+                                       env_name: "AVD_LOCALE",
+                                       description: "Set locale of the emulator",                                       
+                                       optional: true)
         ]
       end
 

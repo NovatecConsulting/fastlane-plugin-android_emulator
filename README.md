@@ -18,10 +18,11 @@ With additional features:
 
 * set location
 * set demo-mode (great for Screengrab 😀)
+* set locale ([Supported with Emulator 29.1.12+](https://androidstudio.googleblog.com/2019/09/emulator-29112-stable.html))
 
 ## Example
 
-**Available Options:** sdk_dir, package, name, device, port, location, demo_mode
+**Available Options:** sdk_dir, package, name, device, port, location, demo_mode, locale
 
 ```ruby
 android_emulator(
@@ -29,7 +30,8 @@ android_emulator(
 	package: "system-images;android-24;google_apis;x86_64",
 	demo_mode: true,
 	sdk_dir: "PATH_TO_SDK",
-	device: "Nexus 5"
+	device: "Nexus 5",
+	locale: "en-US"
 )
 ```
 
