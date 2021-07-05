@@ -21,7 +21,7 @@ With additional features:
 
 ## Example
 
-**Available Options:** sdk_dir, package, name, device, port, location, demo_mode
+**Available Options:** sdk_dir, package, name, device, port, location, demo_mode, cold_boot
 
 ```ruby
 android_emulator(
@@ -29,7 +29,8 @@ android_emulator(
 	package: "system-images;android-24;google_apis;x86_64",
 	demo_mode: true,
 	sdk_dir: "PATH_TO_SDK",
-	device: "Nexus 5"
+	device: "Nexus 5",
+	cold_boot: false
 )
 ```
 

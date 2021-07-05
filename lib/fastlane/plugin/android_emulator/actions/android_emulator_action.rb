@@ -4,6 +4,11 @@ require_relative '../helper/android_emulator_helper'
 module Fastlane
   module Actions
     class AndroidEmulatorAction < Action
+      def self.avd_active(params)
+        image = params[:package].gsub(";", "/")
+        return File.readlines("#{Dir.home}/.android/avd/#{params[:name]}.avd/config.ini").grep(/#{image}/).size > 0
+      end
+
       def self.run(params)
         sdk_dir = params[:sdk_dir]
         port = params[:port]
@@ -11,22 +16,24 @@ module Fastlane
 
         UI.message("Stopping emulator")
         system("#{adb} emu kill > /dev/null 2>&1 &")
-        sleep(2)
+        sleep(3)
 
-        UI.message("Creating new emulator")
-        FastlaneCore::CommandExecutor.execute(
-          command: "#{sdk_dir}/tools/bin/avdmanager create avd -n '#{params[:name]}' -f -k '#{params[:package]}' -d '#{params[:device]}'",
-          print_all: true,
-          print_command: false
-        )
+        if !avd_active(params) || params[:cold_boot]
+          UI.message("Creating new emulator")
+          FastlaneCore::CommandExecutor.execute(
+            command: "#{sdk_dir}/tools/bin/avdmanager create avd -n '#{params[:name]}' -f -k '#{params[:package]}' -d '#{params[:device]}'",
+            print_all: true,
+            print_command: false
+          )
 
-        UI.message("Override configuration")
-        open("#{Dir.home}/.android/avd/#{params[:name]}.avd/config.ini", 'a') { |f|
-          f << "hw.gpu.mode=auto\n"
-          f << "hw.gpu.enabled=yes\n"
-          f << "skin.dynamic=yes\n"
-          f << "skin.name=1080x1920\n"
-        }
+          UI.message("Override configuration")
+          open("#{Dir.home}/.android/avd/#{params[:name]}.avd/config.ini", 'a') { |f|
+            f << "hw.gpu.mode=auto\n"
+            f << "hw.gpu.enabled=yes\n"
+            f << "skin.dynamic=yes\n"
+            f << "skin.name=1080x1920\n"
+          }
+        end
 
         # Verify HAXM installed on mac
         if FastlaneCore::Helper.mac?
@@ -113,7 +120,12 @@ module Fastlane
                                        env_name: "AVD_DEMO_MODE",
                                        description: "Set the emulator in demo mode",
                                        is_string: false,
-                                       default_value: true)
+                                       default_value: true),
+          FastlaneCore::ConfigItem.new(key: :cold_boot,
+                                       env_name: "AVD_COLD_BOOT",
+                                       description: "Create a new AVD every run",
+                                       is_string: false,
+                                       default_value: false)
         ]
       end
 
