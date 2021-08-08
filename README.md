@@ -16,12 +16,12 @@ Creates and starts a new Android Emulator (AVD)
 
 With additional features:
 
-* set location
-* set demo-mode (great for Screengrab 😀)
+- set location
+- set demo-mode (great for Screengrab 😀)
 
 ## Example
 
-**Available Options:** sdk_dir, package, name, device, port, location, demo_mode, cold_boot
+**Available Options:** sdk_dir, package, name, device, port, location, demo_mode, cold_boot, additional_options
 
 ```ruby
 android_emulator(
@@ -30,12 +30,14 @@ android_emulator(
 	demo_mode: true,
 	sdk_dir: "PATH_TO_SDK",
 	device: "Nexus 5",
-	cold_boot: false
+	cold_boot: false,
+	additional_options: [
+		"key=value"
+	]
 )
 ```
 
-Or you can use it with our [Android SDK Update Plugin](https://github.com/NovaTecConsulting/fastlane-plugin-android_sdk_update) 
-
+Or you can use it with our [Android SDK Update Plugin](https://github.com/NovaTecConsulting/fastlane-plugin-android_sdk_update)
 
 ```ruby
 ENV["AVD_PACKAGE"] = "system-images;android-24;google_apis;x86_64"
@@ -62,6 +64,7 @@ rake
 ```
 
 To automatically fix many of the styling issues, use
+
 ```
 rubocop -a
 ```
