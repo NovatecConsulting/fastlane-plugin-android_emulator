@@ -27,7 +27,7 @@ module Fastlane
         if !avd_active(params, config_file) || params[:cold_boot]
           UI.message("Creating new emulator")
           FastlaneCore::CommandExecutor.execute(
-            command: "#{sdk_dir}/tools/bin/avdmanager create avd -n '#{params[:name]}' -f -k '#{params[:package]}' -d '#{params[:device]}'",
+            command: "#{sdk_dir}/cmdline-tools/latest/bin/avdmanager create avd -n '#{params[:name]}' -f -k '#{params[:package]}' -d '#{params[:device]}'",
             print_all: true,
             print_command: true
           )
