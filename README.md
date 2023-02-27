@@ -32,6 +32,7 @@ android_emulator(
 	device: "Nexus 5",
 	cold_boot: false,
 	additional_options: [
+		# Available options: https://android.googlesource.com/platform/external/qemu/+/master/android/avd/hardware-properties.ini
 		"key=value"
 	]
 )
